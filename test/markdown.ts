@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MarkdownParser } from "../src/utils/markdown.js";
+import { MarkdownParser } from "../src/markdown.js";
 
 describe("Markdown tests", () => {
     it("should handle plain text", () => {

@@ -1,6 +1,6 @@
 import { strict as assert } from "assert";
 import { document_fragment, list, markdown_node } from "./markdown_nodes.js";
-import { unwrap } from "./misc.js";
+import { unwrap } from "./utils.js";
 
 // References:
 // https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline

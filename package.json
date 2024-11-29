@@ -5,7 +5,7 @@
     "description": "A markdown parser matching discord's parsing on desktop bug for bug",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "vitest run",
         "build": "tsc"
     },
     "keywords": [
@@ -16,7 +16,8 @@
     "license": "MIT",
     "devDependencies": {
         "ts-node": "^10.9.2",
-        "typescript": "^5.7.2"
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.6"
     },
     "dependencies": {
         "@types/node": "^22.10.1"
