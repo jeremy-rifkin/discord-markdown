@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "nodenext",
+    "declaration": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noImplicitOverride": true,
+    "skipLibCheck": true
+  }
+}
