@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: dependencies
+        run: |
+          npm install -g typescript
+          npm i
+      - name: build
+        run: |
+          npm run build
+      - name: test
+        run: |
+          npm run test
+      - name: prettier-check
+        run: npm run format-check
+      - name: lint
+        run: npm run lint

@@ -6,7 +6,14 @@
     "main": "index.js",
     "scripts": {
         "test": "vitest run",
-        "build": "tsc"
+        "build": "tsc",
+        "prepare": "husky",
+        "ts-check": "tsc --noEmit",
+        "format": "prettier src test --write",
+        "format-check": "prettier src test --check",
+        "format-files": "prettier src test --write --ignore-unknown",
+        "lint": "eslint src",
+        "lint-files": "eslint --color"
     },
     "keywords": [
         "discord",
@@ -15,6 +22,16 @@
     "author": "Jeremy Rifkin",
     "license": "MIT",
     "devDependencies": {
+        "@eslint/eslintrc": "^3.2.0",
+        "@eslint/js": "^9.16.0",
+        "@typescript-eslint/eslint-plugin": "^8.16.0",
+        "@typescript-eslint/parser": "^8.16.0",
+        "eslint": "^9.16.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.2.1",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.2.10",
+        "prettier": "^3.4.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2",
         "vitest": "^2.1.6"
