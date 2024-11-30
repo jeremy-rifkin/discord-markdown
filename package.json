@@ -1,6 +1,9 @@
 {
     "name": "dismark",
-    "repository": "https://github.com/jeremy-rifkin/dismark",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jeremy-rifkin/dismark.git"
+    },
     "version": "0.0.3",
     "description": "A markdown parser matching discord's parsing on desktop bug for bug",
     "main": "dist/src/index.js",
