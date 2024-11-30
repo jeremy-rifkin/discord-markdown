@@ -243,8 +243,9 @@ describe("Markdown tests", () => {
         expect.soft(parser.parse("```````")).to.deep.equal({
             content: [
                 {
-                    content: "```````",
-                    type: "plain",
+                    content: "`",
+                    language: null,
+                    type: "code_block",
                 },
             ],
             type: "doc",
@@ -262,6 +263,16 @@ describe("Markdown tests", () => {
             content: [
                 {
                     content: " ",
+                    language: null,
+                    type: "code_block",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("``` ` ```")).to.deep.equal({
+            content: [
+                {
+                    content: " ` ",
                     language: null,
                     type: "code_block",
                 },

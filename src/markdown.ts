@@ -87,16 +87,12 @@ const ITALICS_RE = new RegExp(
         // followed by a non-space, non-* then *
         ")(?<!\\\\)\\*(?!\\*)",
 );
-const CODE_BLOCK_RE = /^```(?:([\w+\-.]+?)?(\s*\n))?([^\n].*?)\n*```/s;
-const INLINE_CODE_RE = /^(``?)(.*?)\1/s; // new RegExp("^(``?)([^`]*)\\1", "s");
-// eslint-disable-next-line max-len
-const BLOCKQUOTE_RE = /^(?: *>>> (.+)| *>(?!>>) ([^\n]+\n?))/s; // new RegExp("^(?: *>>> ?(.+)| *>(?!>>) ?([^\\n]+\\n?))", "s");
+const CODE_BLOCK_RE = /^```(.+?)```/s;
+const INLINE_CODE_RE = /^(``?)(.*?)\1/s;
+const BLOCKQUOTE_RE = /^(?: *>>> (.+)| *>(?!>>) ([^\n]+\n?))/s;
 const SUBTEXT_RE = /^-# (?!-#) *([^\n]+\n?)/;
 const HEADER_RE = /^ *(#{1,3}) (?!#) *([^\n]+\n?)/;
-// eslint-disable-next-line max-len
-// const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\.|[^)\\\n])*)\)(?!\]\((\s*https:\/\/.*?(?:\\.|[^)\\\n])*)\))/;
 const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\[^[\]]|[^)[\]\\\n])*)\)/;
-// const LIST_RE = /^( *)([+*-]|\d+\.) +([^\n]+\n?)/;
 const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
 
 // TODO: <br/> handling for "  \n"?
@@ -217,20 +213,29 @@ export class SpoilerRule extends Rule {
 
 export class CodeBlockRule extends Rule {
     override match(remaining: string): match_result | null {
+        // original regex: /^```(?:([\w+\-.]+?)?(\s*\n))?([^\n].*?)\n*```/s
+        // parsing this more manually due to redos concern
         const match = remaining.match(CODE_BLOCK_RE);
-        if (match && /[^`]/.test(match[3])) {
-            return match;
-        } else {
-            return null;
-        }
+        return match && /[^\n]/.test(match[1]) ? match : null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
+        const content = match[1].replace(/\n+$/, ""); // trim trailing \n's
+        const language_re = /^([\w+\-.]+?)(?:\s*\n)(.*)$/s;
+        const language_match = content.match(language_re);
+        let language: string | null = null;
+        let code;
+        if (language_match) {
+            language = language_match[1];
+            code = language_match[2];
+        } else {
+            code = content;
+        }
         return {
             node: {
                 type: "code_block",
-                language: (match[1] as string | undefined) ?? null,
-                content: match[3],
+                language,
+                content: code,
             },
             fragment_end: match[0].length,
         };
