@@ -63,12 +63,12 @@ import { unwrap } from "./utils";
 // Headers and blockquotes allow leading spaces at the start of a line, subtext does not
 
 // regexes based on discord/SimpleAST, which is Copyright [2018] [Discord] under the apache v2 license
-const BOLD_RE = /^\*\*([\s\S]+?)\*\*(?!\*)/;
-const UNDERLINE_RE = /^__([\s\S]+?)__(?!_)/;
-const STRIKETHROUGH_RE = /^~~([\s\S]+?)~~/; // new RegExp("^~~(?=\\S)([\\s\\S]*?\\S)~~");
-const SPOILER_RE = /^\|\|([\s\S]+?)\|\|/;
+const BOLD_RE = /^\*\*(.+?)\*\*(?!\*)/s;
+const UNDERLINE_RE = /^__(.+?)__(?!_)/s;
+const STRIKETHROUGH_RE = /^~~(.+?)~~/s; // new RegExp("^~~(?=\\S)([\\s\\S]*?\\S)~~");
+const SPOILER_RE = /^\|\|(.+?)\|\|/s;
 // const NEWLINE_RE = new RegExp("^(?:\\n *)*\\n");
-const TEXT_RE = /^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n| {2,}\n|\w+:\S|$)\n?/;
+const TEXT_RE = /^.+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n| {2,}\n|\w+:\S|$)\n?/s;
 const ESCAPE_RE = /^\\([^0-9A-Za-z\s])/;
 const ITALICS_RE = new RegExp(
     // only match _s surrounding words.

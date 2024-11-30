@@ -247,7 +247,7 @@ export abstract class Rule {
 Below is an example rule to add support for `$$math$$` syntax:
 
 ```ts
-const MATH_RE = /^\$\$([\s\S]+?)\$\$/;
+const MATH_RE = /^\$\$(.+?)\$\$/s;
 type math = {
   type: "math";
   content: string;
