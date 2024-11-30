@@ -1,9 +1,10 @@
 {
     "name": "dismark",
     "repository": "https://github.com/jeremy-rifkin/dismark",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A markdown parser matching discord's parsing on desktop bug for bug",
-    "main": "index.js",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "test": "vitest run",
         "build": "tsc",
