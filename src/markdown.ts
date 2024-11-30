@@ -60,6 +60,7 @@ import { unwrap } from "./utils";
 // This matches as a list item with a blockquote then foo on a different line outside the list/quote
 //   - >>> foo
 //   foo
+// Headers and blockquotes allow leading spaces at the start of a line, subtext does not
 
 // regexes based on discord/SimpleAST, which is Copyright [2018] [Discord] under the apache v2 license
 const BOLD_RE = /^\*\*([\s\S]+?)\*\*(?!\*)/;
@@ -67,7 +68,7 @@ const UNDERLINE_RE = /^__([\s\S]+?)__(?!_)/;
 const STRIKETHROUGH_RE = /^~~([\s\S]+?)~~/; // new RegExp("^~~(?=\\S)([\\s\\S]*?\\S)~~");
 const SPOILER_RE = /^\|\|([\s\S]+?)\|\|/;
 // const NEWLINE_RE = new RegExp("^(?:\\n *)*\\n");
-const TEXT_RE = /^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n| {2,}\n|\w+:\S|$)/;
+const TEXT_RE = /^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n| {2,}\n|\w+:\S|$)\n?/;
 const ESCAPE_RE = /^\\([^0-9A-Za-z\s])/;
 const ITALICS_RE = new RegExp(
     // only match _s surrounding words.
@@ -91,7 +92,7 @@ const INLINE_CODE_RE = /^(``?)(.*?)\1/s; // new RegExp("^(``?)([^`]*)\\1", "s");
 // eslint-disable-next-line max-len
 const BLOCKQUOTE_RE = /^(?: *>>> (.+)| *>(?!>>) ([^\n]+\n?))/s; // new RegExp("^(?: *>>> ?(.+)| *>(?!>>) ?([^\\n]+\\n?))", "s");
 const SUBTEXT_RE = /^-# (?!-#) *([^\n]+\n?)/;
-const HEADER_RE = /^(#{1,3}) (?!#) *([^\n]+\n?)/;
+const HEADER_RE = /^ *(#{1,3}) (?!#) *([^\n]+\n?)/;
 // eslint-disable-next-line max-len
 // const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\.|[^)\\\n])*)\)(?!\]\((\s*https:\/\/.*?(?:\\.|[^)\\\n])*)\))/;
 const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\[^[\]]|[^)[\]\\\n])*)\)/;
@@ -419,13 +420,10 @@ export class MarkdownParser {
     }
 
     public update_state(slice: string, state: parser_state) {
-        for (const c of slice) {
-            if (state.at_start_of_line && /\S/.test(c)) {
-                state.at_start_of_line = false;
-            } else if (!state.at_start_of_line && c === "\n") {
-                state.at_start_of_line = true;
-            }
+        if (slice.length === 0) {
+            return;
         }
+        state.at_start_of_line = slice.endsWith("\n");
     }
 
     private try_match_rules(remaining: string, state: parser_state): parse_result {

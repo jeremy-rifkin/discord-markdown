@@ -263,7 +263,7 @@ describe("Markdown tests", () => {
                         {
                             content: [
                                 {
-                                    content: "foo\n  ", // TODO: Spaces here...
+                                    content: "foo\n",
                                     type: "plain",
                                 },
                                 {

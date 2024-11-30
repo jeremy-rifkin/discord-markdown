@@ -110,20 +110,8 @@ describe("Markdown tests", () => {
         expect.soft(parser.parse("foo\n  -# foo")).to.deep.equal({
             content: [
                 {
-                    content: "foo\n  ", // TODO: Reconsider
+                    content: "foo\n  -# foo",
                     type: "plain",
-                },
-                {
-                    content: {
-                        content: [
-                            {
-                                content: "foo",
-                                type: "plain",
-                            },
-                        ],
-                        type: "doc",
-                    },
-                    type: "subtext",
                 },
             ],
             type: "doc",

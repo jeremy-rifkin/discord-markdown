@@ -14,5 +14,14 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
+        expect.soft(parser.parse("\n\n\n\n\n\n\n\n")).to.deep.equal({
+            content: [
+                {
+                    content: "\n\n\n\n\n\n\n\n",
+                    type: "plain",
+                },
+            ],
+            type: "doc",
+        });
     });
 });
