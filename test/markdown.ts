@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { MarkdownParser } from "../src/markdown.js";
+import { MarkdownParser } from "../src/markdown";
 
 describe("Markdown tests", () => {
+    const parser = new MarkdownParser();
     it("should handle plain text", () => {
-        expect.soft(MarkdownParser.parse("foo bar")).to.deep.equal({
+        expect.soft(parser.parse("foo bar")).to.deep.equal({
             content: [
                 {
                     content: "foo bar",
@@ -15,7 +16,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle bold", () => {
-        expect.soft(MarkdownParser.parse("foo **bar**")).to.deep.equal({
+        expect.soft(parser.parse("foo **bar**")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -37,7 +38,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo **bar** baz")).to.deep.equal({
+        expect.soft(parser.parse("foo **bar** baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -63,7 +64,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ** bar ** baz")).to.deep.equal({
+        expect.soft(parser.parse("foo ** bar ** baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -91,7 +92,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle underline", () => {
-        expect.soft(MarkdownParser.parse("foo __bar__")).to.deep.equal({
+        expect.soft(parser.parse("foo __bar__")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -113,7 +114,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo __bar__ baz")).to.deep.equal({
+        expect.soft(parser.parse("foo __bar__ baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -139,7 +140,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo __ bar __ baz")).to.deep.equal({
+        expect.soft(parser.parse("foo __ bar __ baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -167,7 +168,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle strikethrough", () => {
-        expect.soft(MarkdownParser.parse("foo ~~bar~~")).to.deep.equal({
+        expect.soft(parser.parse("foo ~~bar~~")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -189,7 +190,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ~~bar~~ baz")).to.deep.equal({
+        expect.soft(parser.parse("foo ~~bar~~ baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -215,7 +216,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ~~ bar ~~ baz")).to.deep.equal({
+        expect.soft(parser.parse("foo ~~ bar ~~ baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -243,7 +244,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle spoiler", () => {
-        expect.soft(MarkdownParser.parse("foo ||bar||")).to.deep.equal({
+        expect.soft(parser.parse("foo ||bar||")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -265,7 +266,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ||bar|| baz")).to.deep.equal({
+        expect.soft(parser.parse("foo ||bar|| baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -291,7 +292,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo || bar || baz")).to.deep.equal({
+        expect.soft(parser.parse("foo || bar || baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -319,7 +320,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle italics", () => {
-        expect.soft(MarkdownParser.parse("foo *bar*")).to.deep.equal({
+        expect.soft(parser.parse("foo *bar*")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -341,7 +342,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*bar\\*")).to.deep.equal({
+        expect.soft(parser.parse("*bar\\*")).to.deep.equal({
             content: [
                 {
                     content: "*bar*",
@@ -350,7 +351,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo _bar_")).to.deep.equal({
+        expect.soft(parser.parse("foo _bar_")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -372,7 +373,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo *bar* baz")).to.deep.equal({
+        expect.soft(parser.parse("foo *bar* baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -398,7 +399,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo *bar* baz *boz*")).to.deep.equal({
+        expect.soft(parser.parse("foo *bar* baz *boz*")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -437,7 +438,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo * bar * baz")).to.deep.equal({
+        expect.soft(parser.parse("foo * bar * baz")).to.deep.equal({
             content: [
                 {
                     content: "foo * bar * baz",
@@ -448,7 +449,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle escapes", () => {
-        expect.soft(MarkdownParser.parse("foo \\*bar\\*")).to.deep.equal({
+        expect.soft(parser.parse("foo \\*bar\\*")).to.deep.equal({
             content: [
                 {
                     content: "foo *bar*",
@@ -457,7 +458,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo \\**bar\\**")).to.deep.equal({
+        expect.soft(parser.parse("foo \\**bar\\**")).to.deep.equal({
             content: [
                 {
                     content: "foo *",
@@ -481,7 +482,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle newlines", () => {
-        expect.soft(MarkdownParser.parse("foo\nbar")).to.deep.equal({
+        expect.soft(parser.parse("foo\nbar")).to.deep.equal({
             content: [
                 {
                     content: "foo\nbar",
@@ -490,7 +491,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\\\nbar")).to.deep.equal({
+        expect.soft(parser.parse("foo\\\nbar")).to.deep.equal({
             content: [
                 {
                     content: "foo\\\nbar",
@@ -499,7 +500,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**foo\nbar**")).to.deep.equal({
+        expect.soft(parser.parse("**foo\nbar**")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -519,7 +520,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle combined text formatters", () => {
-        expect.soft(MarkdownParser.parse("***foo***")).to.deep.equal({
+        expect.soft(parser.parse("***foo***")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -546,7 +547,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("***__foo__***")).to.deep.equal({
+        expect.soft(parser.parse("***__foo__***")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -584,7 +585,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle text formatting edge cases", () => {
-        expect.soft(MarkdownParser.parse("**foo***")).to.deep.equal({
+        expect.soft(parser.parse("**foo***")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -602,7 +603,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**foo*")).to.deep.equal({
+        expect.soft(parser.parse("**foo*")).to.deep.equal({
             content: [
                 {
                     content: "*",
@@ -624,7 +625,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**foo__bar**baz__")).to.deep.equal({
+        expect.soft(parser.parse("**foo__bar**baz__")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -646,7 +647,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("** **")).to.deep.equal({
+        expect.soft(parser.parse("** **")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -664,7 +665,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**")).to.deep.equal({
+        expect.soft(parser.parse("**")).to.deep.equal({
             content: [
                 {
                     content: "**",
@@ -673,7 +674,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("***")).to.deep.equal({
+        expect.soft(parser.parse("***")).to.deep.equal({
             content: [
                 {
                     content: "***",
@@ -682,7 +683,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("****")).to.deep.equal({
+        expect.soft(parser.parse("****")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -700,7 +701,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*****")).to.deep.equal({
+        expect.soft(parser.parse("*****")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -719,7 +720,7 @@ describe("Markdown tests", () => {
             type: "doc",
         });
         // TODO: Double check
-        expect.soft(MarkdownParser.parse("******")).to.deep.equal({
+        expect.soft(parser.parse("******")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -738,7 +739,7 @@ describe("Markdown tests", () => {
             type: "doc",
         });
         // TODO: Double check
-        expect.soft(MarkdownParser.parse("*******")).to.deep.equal({
+        expect.soft(parser.parse("*******")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -756,7 +757,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("||")).to.deep.equal({
+        expect.soft(parser.parse("||")).to.deep.equal({
             content: [
                 {
                     content: "||",
@@ -765,7 +766,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("|||")).to.deep.equal({
+        expect.soft(parser.parse("|||")).to.deep.equal({
             content: [
                 {
                     content: "|||",
@@ -774,7 +775,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("||||")).to.deep.equal({
+        expect.soft(parser.parse("||||")).to.deep.equal({
             content: [
                 {
                     content: "||||",
@@ -783,7 +784,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("||||||")).to.deep.equal({
+        expect.soft(parser.parse("||||||")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -805,7 +806,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("~~~~")).to.deep.equal({
+        expect.soft(parser.parse("~~~~")).to.deep.equal({
             content: [
                 {
                     content: "~~~~",
@@ -814,7 +815,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("~~~~~")).to.deep.equal({
+        expect.soft(parser.parse("~~~~~")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -834,7 +835,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle inline code", () => {
-        expect.soft(MarkdownParser.parse("foo `bar` baz")).to.deep.equal({
+        expect.soft(parser.parse("foo `bar` baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -851,7 +852,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo `bar` baz `biz`")).to.deep.equal({
+        expect.soft(parser.parse("foo `bar` baz `biz`")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -872,7 +873,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ``bar`` baz")).to.deep.equal({
+        expect.soft(parser.parse("foo ``bar`` baz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -889,7 +890,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ``bar`` baz ``biz``")).to.deep.equal({
+        expect.soft(parser.parse("foo ``bar`` baz ``biz``")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -910,7 +911,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo `bar\nbaz` boz")).to.deep.equal({
+        expect.soft(parser.parse("foo `bar\nbaz` boz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -927,7 +928,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ``bar`baz`` boz")).to.deep.equal({
+        expect.soft(parser.parse("foo ``bar`baz`` boz")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -944,7 +945,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo ``bar`baz`` boz ``bar`baz``")).to.deep.equal({
+        expect.soft(parser.parse("foo ``bar`baz`` boz ``bar`baz``")).to.deep.equal({
             content: [
                 {
                     content: "foo ",
@@ -967,7 +968,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle code blocks", () => {
-        expect.soft(MarkdownParser.parse("```foo```")).to.deep.equal({
+        expect.soft(parser.parse("```foo```")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -977,7 +978,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("``` foo ```")).to.deep.equal({
+        expect.soft(parser.parse("``` foo ```")).to.deep.equal({
             content: [
                 {
                     content: " foo ",
@@ -987,7 +988,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```foo bar```")).to.deep.equal({
+        expect.soft(parser.parse("```foo bar```")).to.deep.equal({
             content: [
                 {
                     content: "foo bar",
@@ -997,7 +998,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```cpp\nfoo```")).to.deep.equal({
+        expect.soft(parser.parse("```cpp\nfoo```")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1007,7 +1008,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```cpp\nfoo\n```")).to.deep.equal({
+        expect.soft(parser.parse("```cpp\nfoo\n```")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1017,7 +1018,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```cpp foo\nbar```")).to.deep.equal({
+        expect.soft(parser.parse("```cpp foo\nbar```")).to.deep.equal({
             content: [
                 {
                     content: "cpp foo\nbar",
@@ -1027,7 +1028,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo```cpp\nbar```")).to.deep.equal({
+        expect.soft(parser.parse("foo```cpp\nbar```")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1041,7 +1042,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo```cpp\nbar```bar")).to.deep.equal({
+        expect.soft(parser.parse("foo```cpp\nbar```bar")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1059,7 +1060,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo```cpp\nbar``` bar")).to.deep.equal({
+        expect.soft(parser.parse("foo```cpp\nbar``` bar")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1077,7 +1078,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo```cpp\nbar```\nbar")).to.deep.equal({
+        expect.soft(parser.parse("foo```cpp\nbar```\nbar")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1095,7 +1096,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```cpp\n```")).to.deep.equal({
+        expect.soft(parser.parse("```cpp\n```")).to.deep.equal({
             content: [
                 {
                     content: "cpp",
@@ -1107,7 +1108,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle formatters running into code blocks", () => {
-        expect.soft(MarkdownParser.parse("*foo```bar*baz```")).to.deep.equal({
+        expect.soft(parser.parse("*foo```bar*baz```")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1129,7 +1130,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo```bar*baz```biz*")).to.deep.equal({
+        expect.soft(parser.parse("foo```bar*baz```biz*")).to.deep.equal({
             content: [
                 {
                     content: "foo",
@@ -1149,7 +1150,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle code block edge cases", () => {
-        expect.soft(MarkdownParser.parse("`")).to.deep.equal({
+        expect.soft(parser.parse("`")).to.deep.equal({
             content: [
                 {
                     content: "`",
@@ -1158,7 +1159,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("``")).to.deep.equal({
+        expect.soft(parser.parse("``")).to.deep.equal({
             content: [
                 {
                     content: "``",
@@ -1167,7 +1168,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```")).to.deep.equal({
+        expect.soft(parser.parse("```")).to.deep.equal({
             content: [
                 {
                     content: "```",
@@ -1176,7 +1177,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("````")).to.deep.equal({
+        expect.soft(parser.parse("````")).to.deep.equal({
             content: [
                 {
                     content: "````",
@@ -1185,7 +1186,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("`````")).to.deep.equal({
+        expect.soft(parser.parse("`````")).to.deep.equal({
             content: [
                 {
                     content: "`````",
@@ -1194,7 +1195,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("``````")).to.deep.equal({
+        expect.soft(parser.parse("``````")).to.deep.equal({
             content: [
                 {
                     content: "``````",
@@ -1203,7 +1204,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("```````")).to.deep.equal({
+        expect.soft(parser.parse("```````")).to.deep.equal({
             content: [
                 {
                     content: "```````",
@@ -1212,7 +1213,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("``` ``")).to.deep.equal({
+        expect.soft(parser.parse("``` ``")).to.deep.equal({
             content: [
                 {
                     content: "` ",
@@ -1221,7 +1222,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("``` ```")).to.deep.equal({
+        expect.soft(parser.parse("``` ```")).to.deep.equal({
             content: [
                 {
                     content: " ",
@@ -1233,7 +1234,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle blockquotes", () => {
-        expect.soft(MarkdownParser.parse("> foo bar")).to.deep.equal({
+        expect.soft(parser.parse("> foo bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1250,7 +1251,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("> foo\nbar")).to.deep.equal({
+        expect.soft(parser.parse("> foo\nbar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1271,7 +1272,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("> foo\n> bar")).to.deep.equal({
+        expect.soft(parser.parse("> foo\n> bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1300,7 +1301,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo > bar")).to.deep.equal({
+        expect.soft(parser.parse("foo > bar")).to.deep.equal({
             content: [
                 {
                     content: "foo > bar",
@@ -1309,7 +1310,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse(">foo")).to.deep.equal({
+        expect.soft(parser.parse(">foo")).to.deep.equal({
             content: [
                 {
                     content: ">foo",
@@ -1318,7 +1319,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse(">  foo")).to.deep.equal({
+        expect.soft(parser.parse(">  foo")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1335,7 +1336,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\n  > foo")).to.deep.equal({
+        expect.soft(parser.parse("foo\n  > foo")).to.deep.equal({
             content: [
                 {
                     content: "foo\n  ", // TODO: Reconsider
@@ -1356,7 +1357,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\n> bar")).to.deep.equal({
+        expect.soft(parser.parse("foo\n> bar")).to.deep.equal({
             content: [
                 {
                     content: "foo\n",
@@ -1377,7 +1378,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("> > foo")).to.deep.equal({
+        expect.soft(parser.parse("> > foo")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1396,7 +1397,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle mixing blockquotes and other crap", () => {
-        expect.soft(MarkdownParser.parse("*> foo*")).to.deep.equal({
+        expect.soft(parser.parse("*> foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1422,7 +1423,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("** > foo **")).to.deep.equal({
+        expect.soft(parser.parse("** > foo **")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1448,7 +1449,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("> `foo\nbar`")).to.deep.equal({
+        expect.soft(parser.parse("> `foo\nbar`")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1469,7 +1470,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("> ```foo\nbar```")).to.deep.equal({
+        expect.soft(parser.parse("> ```foo\nbar```")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1490,7 +1491,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*test\n>foo*")).to.deep.equal({
+        expect.soft(parser.parse("*test\n>foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1508,7 +1509,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*test\n> foo*")).to.deep.equal({
+        expect.soft(parser.parse("*test\n> foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1538,7 +1539,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("`test\n> foo`")).to.deep.equal({
+        expect.soft(parser.parse("`test\n> foo`")).to.deep.equal({
             content: [
                 {
                     content: "test\n> foo",
@@ -1547,7 +1548,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**test\n> foo**bar")).to.deep.equal({
+        expect.soft(parser.parse("**test\n> foo**bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1583,7 +1584,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle subtext", () => {
-        expect.soft(MarkdownParser.parse("-# foo bar")).to.deep.equal({
+        expect.soft(parser.parse("-# foo bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1600,7 +1601,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-# foo\nbar")).to.deep.equal({
+        expect.soft(parser.parse("-# foo\nbar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1621,7 +1622,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-# foo\n-# bar")).to.deep.equal({
+        expect.soft(parser.parse("-# foo\n-# bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1650,7 +1651,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo -# bar")).to.deep.equal({
+        expect.soft(parser.parse("foo -# bar")).to.deep.equal({
             content: [
                 {
                     content: "foo -# bar",
@@ -1659,7 +1660,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-#foo")).to.deep.equal({
+        expect.soft(parser.parse("-#foo")).to.deep.equal({
             content: [
                 {
                     content: "-#foo",
@@ -1668,7 +1669,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-#  foo")).to.deep.equal({
+        expect.soft(parser.parse("-#  foo")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1685,7 +1686,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\n  -# foo")).to.deep.equal({
+        expect.soft(parser.parse("foo\n  -# foo")).to.deep.equal({
             content: [
                 {
                     content: "foo\n  ", // TODO: Reconsider
@@ -1706,7 +1707,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\n-# bar")).to.deep.equal({
+        expect.soft(parser.parse("foo\n-# bar")).to.deep.equal({
             content: [
                 {
                     content: "foo\n",
@@ -1727,7 +1728,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-#")).to.deep.equal({
+        expect.soft(parser.parse("-#")).to.deep.equal({
             content: [
                 {
                     content: "-#",
@@ -1736,7 +1737,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-# -# foo")).to.deep.equal({
+        expect.soft(parser.parse("-# -# foo")).to.deep.equal({
             content: [
                 {
                     content: "-# -# foo",
@@ -1745,7 +1746,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-#  -# foo")).to.deep.equal({
+        expect.soft(parser.parse("-#  -# foo")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1772,7 +1773,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle mixing subtext and other crap", () => {
-        expect.soft(MarkdownParser.parse("*-# foo*")).to.deep.equal({
+        expect.soft(parser.parse("*-# foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1799,7 +1800,7 @@ describe("Markdown tests", () => {
             type: "doc",
         });
         // TODO: FIXME
-        // expect.soft(MarkdownParser.parse("** -# foo **")).to.deep.equal({
+        // expect.soft(parser.parse("** -# foo **")).to.deep.equal({
         //     content: [
         //         {
         //             content: {
@@ -1817,7 +1818,7 @@ describe("Markdown tests", () => {
         //     ],
         //     type: "doc",
         // });
-        expect.soft(MarkdownParser.parse("-# `foo\nbar`")).to.deep.equal({
+        expect.soft(parser.parse("-# `foo\nbar`")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1838,7 +1839,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-# ```foo\nbar```")).to.deep.equal({
+        expect.soft(parser.parse("-# ```foo\nbar```")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1859,7 +1860,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*test\n-#foo*")).to.deep.equal({
+        expect.soft(parser.parse("*test\n-#foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1877,7 +1878,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*test\n-# foo*")).to.deep.equal({
+        expect.soft(parser.parse("*test\n-# foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1907,7 +1908,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("`test\n-# foo`")).to.deep.equal({
+        expect.soft(parser.parse("`test\n-# foo`")).to.deep.equal({
             content: [
                 {
                     content: "test\n-# foo",
@@ -1916,7 +1917,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**test\n-# foo**bar")).to.deep.equal({
+        expect.soft(parser.parse("**test\n-# foo**bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1952,7 +1953,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle headers", () => {
-        expect.soft(MarkdownParser.parse("# foo bar")).to.deep.equal({
+        expect.soft(parser.parse("# foo bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1970,7 +1971,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("## foo bar")).to.deep.equal({
+        expect.soft(parser.parse("## foo bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -1988,7 +1989,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("### foo bar")).to.deep.equal({
+        expect.soft(parser.parse("### foo bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2006,7 +2007,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("#### foo bar")).to.deep.equal({
+        expect.soft(parser.parse("#### foo bar")).to.deep.equal({
             content: [
                 {
                     content: "#### foo bar",
@@ -2015,7 +2016,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("# foo\nbar")).to.deep.equal({
+        expect.soft(parser.parse("# foo\nbar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2037,7 +2038,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("# foo\n# bar")).to.deep.equal({
+        expect.soft(parser.parse("# foo\n# bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2068,7 +2069,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo # bar")).to.deep.equal({
+        expect.soft(parser.parse("foo # bar")).to.deep.equal({
             content: [
                 {
                     content: "foo # bar",
@@ -2077,7 +2078,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("#foo")).to.deep.equal({
+        expect.soft(parser.parse("#foo")).to.deep.equal({
             content: [
                 {
                     content: "#foo",
@@ -2086,7 +2087,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("#  foo")).to.deep.equal({
+        expect.soft(parser.parse("#  foo")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2104,7 +2105,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\n  # foo")).to.deep.equal({
+        expect.soft(parser.parse("foo\n  # foo")).to.deep.equal({
             content: [
                 {
                     content: "foo\n  ", // TODO: Reconsider
@@ -2126,7 +2127,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo\n# bar")).to.deep.equal({
+        expect.soft(parser.parse("foo\n# bar")).to.deep.equal({
             content: [
                 {
                     content: "foo\n",
@@ -2148,7 +2149,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("#")).to.deep.equal({
+        expect.soft(parser.parse("#")).to.deep.equal({
             content: [
                 {
                     content: "#",
@@ -2157,7 +2158,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("# # foo")).to.deep.equal({
+        expect.soft(parser.parse("# # foo")).to.deep.equal({
             content: [
                 {
                     content: "# # foo",
@@ -2166,7 +2167,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("#  # foo")).to.deep.equal({
+        expect.soft(parser.parse("#  # foo")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2195,7 +2196,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle mixing headers and other crap", () => {
-        expect.soft(MarkdownParser.parse("*# foo*")).to.deep.equal({
+        expect.soft(parser.parse("*# foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2223,7 +2224,7 @@ describe("Markdown tests", () => {
             type: "doc",
         });
         // TODO: FIXME
-        // expect.soft(MarkdownParser.parse("** # foo **")).to.deep.equal({
+        // expect.soft(parser.parse("** # foo **")).to.deep.equal({
         //     content: [
         //         {
         //             content: {
@@ -2241,7 +2242,7 @@ describe("Markdown tests", () => {
         //     ],
         //     type: "doc",
         // });
-        expect.soft(MarkdownParser.parse("# `foo\nbar`")).to.deep.equal({
+        expect.soft(parser.parse("# `foo\nbar`")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2263,7 +2264,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("# ```foo\nbar```")).to.deep.equal({
+        expect.soft(parser.parse("# ```foo\nbar```")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2285,7 +2286,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*test\n#foo*")).to.deep.equal({
+        expect.soft(parser.parse("*test\n#foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2303,7 +2304,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("*test\n# foo*")).to.deep.equal({
+        expect.soft(parser.parse("*test\n# foo*")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2334,7 +2335,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("`test\n# foo`")).to.deep.equal({
+        expect.soft(parser.parse("`test\n# foo`")).to.deep.equal({
             content: [
                 {
                     content: "test\n# foo",
@@ -2343,7 +2344,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("**test\n# foo**bar")).to.deep.equal({
+        expect.soft(parser.parse("**test\n# foo**bar")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2380,7 +2381,7 @@ describe("Markdown tests", () => {
         });
     });
     it("should handle headers", () => {
-        expect.soft(MarkdownParser.parse("foo [ asfd ](asdf)")).to.deep.equal({
+        expect.soft(parser.parse("foo [ asfd ](asdf)")).to.deep.equal({
             content: [
                 {
                     content: "foo [ asfd ](asdf)",
@@ -2389,7 +2390,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("bar[foo](https://google.com)barz")).to.deep.equal({
+        expect.soft(parser.parse("bar[foo](https://google.com)barz")).to.deep.equal({
             content: [
                 {
                     content: "bar",
@@ -2415,7 +2416,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("bar[foo\\]bar](https://google.com/\\)bar)barz")).to.deep.equal({
+        expect.soft(parser.parse("bar[foo\\]bar](https://google.com/\\)bar)barz")).to.deep.equal({
             content: [
                 {
                     content: "bar",
@@ -2441,7 +2442,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("bar[ foobar ]( https://google.com/bar )barz")).to.deep.equal({
+        expect.soft(parser.parse("bar[ foobar ]( https://google.com/bar )barz")).to.deep.equal({
             content: [
                 {
                     content: "bar",
@@ -2467,7 +2468,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("bar[foobar](ftp://google.com/bar)barz")).to.deep.equal({
+        expect.soft(parser.parse("bar[foobar](ftp://google.com/bar)barz")).to.deep.equal({
             content: [
                 {
                     content: "bar[foobar](ftp://google.com/bar)barz",
@@ -2476,7 +2477,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("[foo**bar**](https://google.com)")).to.deep.equal({
+        expect.soft(parser.parse("[foo**bar**](https://google.com)")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2507,7 +2508,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("[foo](https://\ngoogle.com)")).to.deep.equal({
+        expect.soft(parser.parse("[foo](https://\ngoogle.com)")).to.deep.equal({
             content: [
                 {
                     content: "[foo](https://\ngoogle.com)",
@@ -2516,7 +2517,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("[foo\nbar](https://google.com)")).to.deep.equal({
+        expect.soft(parser.parse("[foo\nbar](https://google.com)")).to.deep.equal({
             content: [
                 {
                     content: {
@@ -2534,7 +2535,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("[foo] (https://google.com)")).to.deep.equal({
+        expect.soft(parser.parse("[foo] (https://google.com)")).to.deep.equal({
             content: [
                 {
                     content: "[foo] (https://google.com)",
@@ -2544,10 +2545,10 @@ describe("Markdown tests", () => {
             type: "doc",
         });
         // TODO
-        // expect.soft(MarkdownParser.parse("[foo[foo](https://google.com)](https://google.com)")).to.deep.equal(0);
+        // expect.soft(parser.parse("[foo[foo](https://google.com)](https://google.com)")).to.deep.equal(0);
     });
     it("should handle lists", () => {
-        expect.soft(MarkdownParser.parse("- foo")).to.deep.equal({
+        expect.soft(parser.parse("- foo")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2567,7 +2568,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("-foo")).to.deep.equal({
+        expect.soft(parser.parse("-foo")).to.deep.equal({
             content: [
                 {
                     content: "-foo",
@@ -2576,7 +2577,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("foo - bar")).to.deep.equal({
+        expect.soft(parser.parse("foo - bar")).to.deep.equal({
             content: [
                 {
                     content: "foo - bar",
@@ -2585,7 +2586,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("1. foo")).to.deep.equal({
+        expect.soft(parser.parse("1. foo")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2605,7 +2606,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("2. foo")).to.deep.equal({
+        expect.soft(parser.parse("2. foo")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2625,7 +2626,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("1. 2. 3. foo")).to.deep.equal({
+        expect.soft(parser.parse("1. 2. 3. foo")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2667,7 +2668,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("- foo\n- bar")).to.deep.equal({
+        expect.soft(parser.parse("- foo\n- bar")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2696,7 +2697,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("- foo\n1. bar")).to.deep.equal({
+        expect.soft(parser.parse("- foo\n1. bar")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2725,7 +2726,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("   -   foo")).to.deep.equal({
+        expect.soft(parser.parse("   -   foo")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2745,7 +2746,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("- - - - foo")).to.deep.equal({
+        expect.soft(parser.parse("- - - - foo")).to.deep.equal({
             content: [
                 {
                     items: [
@@ -2798,7 +2799,7 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(MarkdownParser.parse("- foo\n  - bar")).to.deep.equal({
+        expect.soft(parser.parse("- foo\n  - bar")).to.deep.equal({
             content: [
                 {
                     items: [

@@ -1,6 +1,6 @@
 import { strict as assert } from "assert";
-import { document_fragment, list, markdown_node } from "./markdown_nodes.js";
-import { unwrap } from "./utils.js";
+import { document_fragment, list, markdown_node } from "./markdown_nodes";
+import { unwrap } from "./utils";
 
 // References:
 // https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline
@@ -98,29 +98,27 @@ const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\[^[\]]|[^)[\]\\\
 // const LIST_RE = /^( *)([+*-]|\d+\.) +([^\n]+\n?)/;
 const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
 
-// TODO: Rework plain text handling
+export type parse_result = { node: markdown_node; fragment_end: number };
+export type match_result = RegExpMatchArray;
 
-type parse_result = { node: markdown_node; fragment_end: number };
-type match_result = RegExpMatchArray;
-
-type parser_state = {
+export type parser_state = {
     at_start_of_line: boolean;
     in_quote: boolean;
 };
 
-abstract class Rule {
-    abstract match(remaining: string, parser: MarkdownParser): match_result | null;
-    abstract parse(match: match_result, parser: MarkdownParser, remaining: string): parse_result;
+export abstract class Rule {
+    abstract match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null;
+    abstract parse(match: match_result, parser: MarkdownParser, state: parser_state, remaining: string): parse_result;
     coalesce?(a: markdown_node, b: markdown_node): markdown_node | null;
 }
 
-class EscapeRule extends Rule {
+export class EscapeRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(ESCAPE_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
-        parser.state.at_start_of_line = false;
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
+        state.at_start_of_line = false;
         return {
             node: {
                 type: "plain",
@@ -131,92 +129,92 @@ class EscapeRule extends Rule {
     }
 }
 
-class BoldRule extends Rule {
+export class BoldRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(BOLD_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "format",
                 formatter: "**",
-                content: parser.parse_document(match[1]),
+                content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class UnderlineRule extends Rule {
+export class UnderlineRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(UNDERLINE_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "format",
                 formatter: "__",
-                content: parser.parse_document(match[1]),
+                content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class ItalicsRule extends Rule {
+export class ItalicsRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(ITALICS_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "format",
                 formatter: "*",
-                content: parser.parse_document((match[1] as string | undefined) ?? match[2]),
+                content: parser.parse_internal((match[1] as string | undefined) ?? match[2], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class StrikethroughRule extends Rule {
+export class StrikethroughRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(STRIKETHROUGH_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "format",
                 formatter: "~~",
-                content: parser.parse_document(match[1]),
+                content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class SpoilerRule extends Rule {
+export class SpoilerRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(SPOILER_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "format",
                 formatter: "||",
-                content: parser.parse_document(match[1]),
+                content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class CodeBlockRule extends Rule {
+export class CodeBlockRule extends Rule {
     override match(remaining: string): match_result | null {
         const match = remaining.match(CODE_BLOCK_RE);
         if (match && /[^`]/.test(match[3])) {
@@ -226,7 +224,7 @@ class CodeBlockRule extends Rule {
         }
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "code",
@@ -238,7 +236,7 @@ class CodeBlockRule extends Rule {
     }
 }
 
-class InlineCodeRule extends Rule {
+export class InlineCodeRule extends Rule {
     override match(remaining: string): match_result | null {
         const match = remaining.match(INLINE_CODE_RE);
         if (match && /[^`]/.test(match[2])) {
@@ -248,7 +246,7 @@ class InlineCodeRule extends Rule {
         }
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "inline code",
@@ -259,15 +257,15 @@ class InlineCodeRule extends Rule {
     }
 }
 
-class BlockquoteRule extends Rule {
-    override match(remaining: string, parser: MarkdownParser): match_result | null {
-        return parser.state.at_start_of_line && !parser.state.in_quote ? remaining.match(BLOCKQUOTE_RE) : null;
+export class BlockquoteRule extends Rule {
+    override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
+        return state.at_start_of_line && !state.in_quote ? remaining.match(BLOCKQUOTE_RE) : null;
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
-        parser.state.in_quote = true;
-        const content = parser.parse_document((match[1] as string | undefined) || match[2]);
-        parser.state.in_quote = false;
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
+        state.in_quote = true;
+        const content = parser.parse_internal((match[1] as string | undefined) || match[2], state);
+        state.in_quote = false;
         return {
             node: {
                 type: "blockquote",
@@ -278,71 +276,71 @@ class BlockquoteRule extends Rule {
     }
 }
 
-class SubtextRule extends Rule {
-    override match(remaining: string, parser: MarkdownParser): match_result | null {
-        return parser.state.at_start_of_line ? remaining.match(SUBTEXT_RE) : null;
+export class SubtextRule extends Rule {
+    override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
+        return state.at_start_of_line ? remaining.match(SUBTEXT_RE) : null;
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "subtext",
-                content: parser.parse_document(match[1]),
+                content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class HeaderRule extends Rule {
-    override match(remaining: string, parser: MarkdownParser): match_result | null {
-        return parser.state.at_start_of_line ? remaining.match(HEADER_RE) : null;
+export class HeaderRule extends Rule {
+    override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
+        return state.at_start_of_line ? remaining.match(HEADER_RE) : null;
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "header",
                 level: match[1].length,
-                content: parser.parse_document(match[2]),
+                content: parser.parse_internal(match[2], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class LinkRule extends Rule {
+export class LinkRule extends Rule {
     override match(remaining: string, parser: MarkdownParser): match_result | null {
         return remaining.match(LINK_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
                 type: "masked link",
                 target: match[2],
-                content: parser.parse_document(match[1]),
+                content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
         };
     }
 }
 
-class ListRule extends Rule {
-    override match(remaining: string, parser: MarkdownParser): match_result | null {
-        return parser.state.at_start_of_line ? remaining.match(LIST_RE) : null;
+export class ListRule extends Rule {
+    override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
+        return state.at_start_of_line ? remaining.match(LIST_RE) : null;
     }
 
-    override parse(match: match_result, parser: MarkdownParser, remaining: string): parse_result {
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state, remaining: string): parse_result {
         const list_node: list = {
             type: "list",
             start_number: (match[3] as string | null) ? parseInt(match[3]) : null,
-            items: [parser.parse_document(match[4])],
+            items: [parser.parse_internal(match[4], state)],
         };
         let fragment_end = match[0].length;
         let next_match;
-        while ((next_match = this.match(remaining.substring(fragment_end), parser))) {
-            list_node.items.push(parser.parse_document(next_match[4]));
+        while ((next_match = this.match(remaining.substring(fragment_end), parser, state))) {
+            list_node.items.push(parser.parse_internal(next_match[4], state));
             fragment_end += next_match[0].length;
         }
         return {
@@ -352,13 +350,13 @@ class ListRule extends Rule {
     }
 }
 
-class TextRule extends Rule {
+export class TextRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(TEXT_RE);
     }
 
-    override parse(match: match_result, parser: MarkdownParser): parse_result {
-        parser.update_state(match[0]);
+    override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
+        parser.update_state(match[0], state);
         return {
             node: {
                 type: "plain",
@@ -380,12 +378,7 @@ class TextRule extends Rule {
 }
 
 export class MarkdownParser {
-    public state: parser_state = {
-        at_start_of_line: true,
-        in_quote: false,
-    };
-
-    readonly rules = [
+    static readonly default_rules = [
         new EscapeRule(),
         new BoldRule(),
         new UnderlineRule(),
@@ -402,15 +395,21 @@ export class MarkdownParser {
         new TextRule(),
     ];
 
-    static parse(input: string) {
-        return new MarkdownParser().parse_document(input);
+    constructor(readonly rules = MarkdownParser.default_rules) {}
+
+    public parse(input: string) {
+        const state: parser_state = {
+            at_start_of_line: true,
+            in_quote: false,
+        };
+        return this.parse_internal(input, state);
     }
 
-    parse_document(input: string): document_fragment {
+    public parse_internal(input: string, state: parser_state): document_fragment {
         let cursor = 0;
         const parts: markdown_node[] = [];
         while (cursor < input.length) {
-            const { node, fragment_end } = this.parse(input.substring(cursor));
+            const { node, fragment_end } = this.try_match_rules(input.substring(cursor), state);
             parts.push(node);
             this.try_coalesce_new_parts(parts);
             cursor += fragment_end;
@@ -421,27 +420,27 @@ export class MarkdownParser {
         };
     }
 
-    public update_state(slice: string) {
+    public update_state(slice: string, state: parser_state) {
         for (const c of slice) {
-            if (this.state.at_start_of_line && /\S/.test(c)) {
-                this.state.at_start_of_line = false;
-            } else if (!this.state.at_start_of_line && c === "\n") {
-                this.state.at_start_of_line = true;
+            if (state.at_start_of_line && /\S/.test(c)) {
+                state.at_start_of_line = false;
+            } else if (!state.at_start_of_line && c === "\n") {
+                state.at_start_of_line = true;
             }
         }
     }
 
-    parse(remaining: string): parse_result {
+    private try_match_rules(remaining: string, state: parser_state): parse_result {
         for (const rule of this.rules) {
-            const match = rule.match(remaining, this);
+            const match = rule.match(remaining, this, state);
             if (match) {
-                return rule.parse(match, this, remaining);
+                return rule.parse(match, this, state, remaining);
             }
         }
         throw new Error(`No match when parsing ${remaining}`);
     }
 
-    try_coalesce_new_parts(parts: markdown_node[]) {
+    private try_coalesce_new_parts(parts: markdown_node[]) {
         if (parts.length < 2) {
             return;
         }
