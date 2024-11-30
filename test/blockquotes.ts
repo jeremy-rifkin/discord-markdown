@@ -28,7 +28,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "foo\n",
+                                content: "foo",
                                 type: "plain",
                             },
                         ],
@@ -49,7 +49,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "foo\n",
+                                content: "foo",
                                 type: "plain",
                             },
                         ],
@@ -202,7 +202,7 @@ describe("Markdown tests", () => {
                                 content: {
                                     content: [
                                         {
-                                            content: "foo ",
+                                            content: "foo",
                                             type: "plain",
                                         },
                                     ],
@@ -224,7 +224,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "`foo\n",
+                                content: "`foo",
                                 type: "plain",
                             },
                         ],
@@ -245,7 +245,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "```foo\n", // TODO: Get rid of the trailing \n here
+                                content: "```foo",
                                 type: "plain",
                             },
                         ],

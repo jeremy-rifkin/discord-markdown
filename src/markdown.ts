@@ -99,6 +99,8 @@ const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\[^[\]]|[^)[\]\\\
 // const LIST_RE = /^( *)([+*-]|\d+\.) +([^\n]+\n?)/;
 const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
 
+// TODO: <br/> handling for "  \n"?
+
 export type parse_result = { node: markdown_node; fragment_end: number };
 export type match_result = RegExpMatchArray;
 
@@ -263,15 +265,16 @@ export class BlockquoteRule extends Rule {
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         state.in_quote = true;
-        const content = parser.parse_internal((match[1] as string | undefined) || match[2], state);
-        state.in_quote = false;
-        return {
+        const node: parse_result = {
             node: {
                 type: "blockquote",
-                content,
+                content: parser.parse_internal(((match[1] as string | undefined) || match[2]).trimEnd(), state),
             },
             fragment_end: match[0].length,
         };
+        state.in_quote = false;
+        state.at_start_of_line = true;
+        return node;
     }
 }
 
@@ -281,13 +284,15 @@ export class SubtextRule extends Rule {
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
-        return {
+        const node: parse_result = {
             node: {
                 type: "subtext",
-                content: parser.parse_internal(match[1], state),
+                content: parser.parse_internal(match[1].trim(), state),
             },
             fragment_end: match[0].length,
         };
+        state.at_start_of_line = true;
+        return node;
     }
 }
 
@@ -297,14 +302,16 @@ export class HeaderRule extends Rule {
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
-        return {
+        const node: parse_result = {
             node: {
                 type: "header",
                 level: match[1].length,
-                content: parser.parse_internal(match[2], state),
+                content: parser.parse_internal(match[2].trim(), state),
             },
             fragment_end: match[0].length,
         };
+        state.at_start_of_line = true;
+        return node;
     }
 }
 
@@ -359,7 +366,10 @@ export class TextRule extends Rule {
         return {
             node: {
                 type: "plain",
-                content: match[0],
+                content: match[0]
+                    .split(/(?<=\n)/)
+                    .map(line => (line.endsWith("\n") ? line.trimEnd() + "\n" : line))
+                    .join(""),
             },
             fragment_end: match[0].length,
         };
@@ -401,7 +411,7 @@ export class MarkdownParser {
             at_start_of_line: true,
             in_quote: false,
         };
-        return this.parse_internal(input, state);
+        return this.parse_internal(input.trim(), state);
     }
 
     public parse_internal(input: string, state: parser_state): document_fragment {

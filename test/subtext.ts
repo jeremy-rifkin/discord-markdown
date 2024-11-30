@@ -28,7 +28,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "foo\n",
+                                content: "foo",
                                 type: "plain",
                             },
                         ],
@@ -49,7 +49,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "foo\n",
+                                content: "foo",
                                 type: "plain",
                             },
                         ],
@@ -207,32 +207,30 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        // TODO: FIXME
-        // expect.soft(parser.parse("** -# foo **")).to.deep.equal({
-        //     content: [
-        //         {
-        //             content: {
-        //                 content: [
-        //                     {
-        //                         content: " -# foo ",
-        //                         type: "plain",
-        //                     },
-        //                 ],
-        //                 type: "doc",
-        //             },
-        //             type: "bold",
-        //
-        //         },
-        //     ],
-        //     type: "doc",
-        // });
+        expect.soft(parser.parse("** -# foo **")).to.deep.equal({
+            content: [
+                {
+                    content: {
+                        content: [
+                            {
+                                content: " -# foo ",
+                                type: "plain",
+                            },
+                        ],
+                        type: "doc",
+                    },
+                    type: "bold",
+                },
+            ],
+            type: "doc",
+        });
         expect.soft(parser.parse("-# `foo\nbar`")).to.deep.equal({
             content: [
                 {
                     content: {
                         content: [
                             {
-                                content: "`foo\n",
+                                content: "`foo",
                                 type: "plain",
                             },
                         ],
@@ -253,7 +251,7 @@ describe("Markdown tests", () => {
                     content: {
                         content: [
                             {
-                                content: "```foo\n", // TODO: Get rid of the trailing \n here
+                                content: "```foo",
                                 type: "plain",
                             },
                         ],
@@ -352,6 +350,49 @@ describe("Markdown tests", () => {
                 {
                     content: "bar",
                     type: "plain",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("#   -# foo")).to.deep.equal({
+            content: [
+                {
+                    content: {
+                        content: [
+                            {
+                                content: {
+                                    content: [
+                                        {
+                                            content: "foo",
+                                            type: "plain",
+                                        },
+                                    ],
+                                    type: "doc",
+                                },
+                                type: "subtext",
+                            },
+                        ],
+                        type: "doc",
+                    },
+                    level: 1,
+                    type: "header",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse(">   -# bar")).to.deep.equal({
+            content: [
+                {
+                    content: {
+                        content: [
+                            {
+                                content: "  -# bar",
+                                type: "plain",
+                            },
+                        ],
+                        type: "doc",
+                    },
+                    type: "blockquote",
                 },
             ],
             type: "doc",

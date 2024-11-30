@@ -14,10 +14,28 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
-        expect.soft(parser.parse("\n\n\n\n\n\n\n\n")).to.deep.equal({
+        expect.soft(parser.parse("a\n\n\n\n\n\n\n\na")).to.deep.equal({
             content: [
                 {
-                    content: "\n\n\n\n\n\n\n\n",
+                    content: "a\n\n\n\n\n\n\n\na",
+                    type: "plain",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("   foo  ")).to.deep.equal({
+            content: [
+                {
+                    content: "foo",
+                    type: "plain",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("foo  \n  \nbar\n")).to.deep.equal({
+            content: [
+                {
+                    content: "foo\n\nbar",
                     type: "plain",
                 },
             ],
