@@ -13,7 +13,7 @@
         "build": "tsc",
         "prepare": "husky",
         "ts-check": "tsc --noEmit",
-        "format": "prettier src test --write",
+        "format": "prettier src test *.md --write",
         "format-check": "prettier src test --check",
         "format-files": "prettier src test --write --ignore-unknown",
         "lint": "eslint src",

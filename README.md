@@ -9,9 +9,12 @@ This is a discord-flavored markdown parser matching discord's desktop parsing bu
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [AST structure](#ast-structure)
+- [AST Structure](#ast-structure)
 - [Example](#example)
-- [Custom rules](#custom-rules)
+- [Parse Rules](#parse-rules)
+  - [Example](#example-1)
+- [Custom Rules](#custom-rules)
+  - [Example](#example-2)
 
 ## Installation
 
@@ -24,12 +27,26 @@ npm i --save dismark
 ```js
 import { MarkdownParser } from "dismark";
 const parser = new MarkdownParser();
-console.log(parser.parse("Hello *World*"));
+console.log(JSON.stringify(parser.parse("Hello *World*"), null, 4));
 // {
-//     type: "doc",
-//     content: [
-//         { type: "plain", content: "Hello " },
-//         { type: "format", formatter: "*", content: [Object] }
+//     "type": "doc",
+//     "content": [
+//         {
+//             "type": "plain",
+//             "content": "Hello "
+//         },
+//         {
+//             "type": "italics",
+//             "content": {
+//                 "type": "doc",
+//                 "content": [
+//                     {
+//                         "type": "plain",
+//                         "content": "World"
+//                     }
+//                 ]
+//             }
+//         }
 //     ]
 // }
 ```
@@ -149,14 +166,16 @@ function extract_text(node: markdown_node): string {
     case "underline":
     case "strikethrough":
     case "spoiler":
-    case "header":
-    case "subtext":
     case "masked_link":
       return extract_text(node.content);
+    case "header":
+    case "blockquote":
+    case "subtext":
+      return extract_text(node.content) + "\n";
     case "list":
       return node.items.map(extract_text).join("");
     default:
-      throw new Error(`Unhandled markdown ast node type ${node.type}`);
+      throw new Error(`Unhandled markdown ast node type ${(node as any).type}`);
   }
 }
 
