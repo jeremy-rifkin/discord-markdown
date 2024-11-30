@@ -1,5 +1,8 @@
 # Dismark <!-- omit in toc -->
 
+[![ci](https://github.com/jeremy-rifkin/dismark/actions/workflows/ci.yml/badge.svg)](https://github.com/jeremy-rifkin/dismark/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jeremy-rifkin_discord-markdown&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jeremy-rifkin_discord-markdown)
+
 This is a discord-flavored markdown parser matching discord's desktop parsing bug for bug.
 
 ## Contents <!-- omit in toc -->
