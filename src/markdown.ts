@@ -107,8 +107,11 @@ export type parser_state = {
 };
 
 export abstract class Rule {
+    // attempt to match a rule at the start of the substring `remaining`
     abstract match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null;
+    // given a `match_result`, parse a markdown node
     abstract parse(match: match_result, parser: MarkdownParser, state: parser_state, remaining: string): parse_result;
+    // attempt to coalesce to sequential markdown nodes (e.g. to merge sequential plain text nodes into a single node)
     coalesce?(a: markdown_node, b: markdown_node): markdown_node | null;
 }
 
@@ -137,8 +140,7 @@ export class BoldRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "format",
-                formatter: "**",
+                type: "bold",
                 content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
@@ -154,8 +156,7 @@ export class UnderlineRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "format",
-                formatter: "__",
+                type: "underline",
                 content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
@@ -171,8 +172,7 @@ export class ItalicsRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "format",
-                formatter: "*",
+                type: "italics",
                 content: parser.parse_internal((match[1] as string | undefined) ?? match[2], state),
             },
             fragment_end: match[0].length,
@@ -188,8 +188,7 @@ export class StrikethroughRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "format",
-                formatter: "~~",
+                type: "strikethrough",
                 content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
@@ -205,8 +204,7 @@ export class SpoilerRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "format",
-                formatter: "||",
+                type: "spoiler",
                 content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,
@@ -227,7 +225,7 @@ export class CodeBlockRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "code",
+                type: "code_block",
                 language: (match[1] as string | undefined) ?? null,
                 content: match[3],
             },
@@ -249,7 +247,7 @@ export class InlineCodeRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "inline code",
+                type: "inline_code",
                 content: match[2],
             },
             fragment_end: match[0].length,
@@ -317,7 +315,7 @@ export class LinkRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         return {
             node: {
-                type: "masked link",
+                type: "masked_link",
                 target: match[2],
                 content: parser.parse_internal(match[1], state),
             },

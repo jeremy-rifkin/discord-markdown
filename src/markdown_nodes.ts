@@ -8,19 +8,38 @@ export type plain_text = {
     content: string;
 };
 
-export type formatted_text = {
-    type: "format";
-    formatter: "*" | "**" | "__" | "~~" | "||";
+export type italics = {
+    type: "italics";
+    content: markdown_node;
+};
+
+export type bold = {
+    type: "bold";
+    content: markdown_node;
+};
+
+export type underline = {
+    type: "underline";
+    content: markdown_node;
+};
+
+export type strikethrough = {
+    type: "strikethrough";
+    content: markdown_node;
+};
+
+export type spoiler = {
+    type: "spoiler";
     content: markdown_node;
 };
 
 export type inline_code = {
-    type: "inline code";
+    type: "inline_code";
     content: string;
 };
 
 export type code_block = {
-    type: "code";
+    type: "code_block";
     language: string | null;
     content: string;
 };
@@ -37,7 +56,7 @@ export type subtext = {
 };
 
 export type masked_link = {
-    type: "masked link";
+    type: "masked_link";
     target: string;
     content: markdown_node;
 };
@@ -56,7 +75,11 @@ export type blockquote = {
 export type markdown_node =
     | document_fragment
     | plain_text
-    | formatted_text
+    | italics
+    | bold
+    | underline
+    | strikethrough
+    | spoiler
     | inline_code
     | code_block
     | header
