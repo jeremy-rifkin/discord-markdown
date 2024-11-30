@@ -1,2 +1,2 @@
 export * from "./markdown";
-export * from "./markdown_nodes";
+export * from "./markdown-nodes";

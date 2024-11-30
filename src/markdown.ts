@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { document_fragment, list, markdown_node } from "./markdown_nodes";
+import { document_fragment, list, markdown_node } from "./markdown-nodes";
 import { unwrap } from "./utils";
 
 // References:
