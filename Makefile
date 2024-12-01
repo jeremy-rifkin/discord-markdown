@@ -49,5 +49,5 @@ update:  ## Updates npm packages
 	./scripts/update_packages.sh
 
 .PHONY: publish
-update: check build test  ## Publish to npm
+publish: check build test  ## Publish to npm
 	npm publish
