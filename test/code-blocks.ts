@@ -279,5 +279,9 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
+        // TODO parsed as inline "``" then "bar`"
+        // expect.soft(parser.parse("```\n`bar`")).to.deep.equal(0);
+        // TODO: this is parsed as inline
+        // expect.soft(parser.parse("```\n```")).to.deep.equal(0);
     });
 });

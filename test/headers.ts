@@ -435,4 +435,30 @@ describe("Markdown tests", () => {
             type: "doc",
         });
     });
+    expect.soft(parser.parse("> # foo")).to.deep.equal({
+        content: [
+            {
+                content: {
+                    content: [
+                        {
+                            content: {
+                                content: [
+                                    {
+                                        content: "foo",
+                                        type: "plain",
+                                    },
+                                ],
+                                type: "doc",
+                            },
+                            level: 1,
+                            type: "header",
+                        },
+                    ],
+                    type: "doc",
+                },
+                type: "blockquote",
+            },
+        ],
+        type: "doc",
+    });
 });
