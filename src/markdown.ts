@@ -1,6 +1,6 @@
 import { strict as assert } from "assert";
 import { document_fragment, list, markdown_node, plain_text } from "./markdown-nodes";
-import { unwrap } from "./utils";
+import { trim_trailing_newlines, unwrap } from "./utils";
 
 // References:
 // https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline
@@ -226,7 +226,7 @@ export class CodeBlockRule extends Rule {
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
-        const content = match[1].replace(/\n+$/, ""); // trim trailing \n's
+        const content = trim_trailing_newlines(match[1]);
         const language_re = /^([\w+\-.]+?)(?:\s*\n)(.*)$/s;
         const language_match = content.match(language_re);
         let language: string | null = null;
