@@ -4,8 +4,11 @@ import { trim_trailing_newlines, unwrap } from "./utils";
 
 // References:
 // https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline
+// Some regexes used here are based on discord/SimpleAST, which is Copyright [2018] [Discord] under the apache v2
+// license
 // eslint-disable-next-line max-len
 // https://github.com/discord/SimpleAST/blob/master/simpleast-core/src/main/java/com/discord/simpleast/core/simple/SimpleMarkdownRules.kt
+// https://github.com/Khan/perseus/blob/main/packages/simple-markdown/src/index.ts
 
 // Rules:
 // Italics: * or _
@@ -62,43 +65,6 @@ import { trim_trailing_newlines, unwrap } from "./utils";
 //   foo
 // Headers and blockquotes allow leading spaces at the start of a line, subtext does not
 
-// regexes based on discord/SimpleAST, which is Copyright [2018] [Discord] under the apache v2 license
-const BOLD_RE = /^\*\*(.+?)\*\*(?!\*)/s;
-const UNDERLINE_RE = /^__(.+?)__(?!_)/s;
-const STRIKETHROUGH_RE = /^~~(.+?)~~/s; // new RegExp("^~~(?=\\S)([\\s\\S]*?\\S)~~");
-const SPOILER_RE = /^\|\|(.+?)\|\|/s;
-// const NEWLINE_RE = new RegExp("^(?:\\n *)*\\n");
-const TEXT_RE = /^.+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n|$)\n?/s;
-const ESCAPE_RE = /^\\([^0-9A-Za-z\s])/;
-const ITALICS_RE = new RegExp(
-    // only match _s surrounding words.
-    "^\\b_" +
-        "((?:__|\\\\[\\s\\S]|[^\\\\_])+?)_" +
-        "\\b" +
-        "|" +
-        // Or match *s that are followed by a non-space:
-        "^\\*(?=\\S)(" +
-        // Match any of:
-        //  - `**`: so that bolds inside italics don't close the italics
-        //  - `\*`: so that escaped *'s aren't considered
-        //  - whitespace
-        //  - non-whitespace, non-* characters
-        "(?:\\\\\\*|\\*\\*|\\s+(?:[^*\\s]|\\\\\\*|\\*\\*)|[^\\s*])+?" +
-        // followed by a non-space, non-* then *
-        ")(?<!\\\\)\\*(?!\\*)",
-);
-const CODE_BLOCK_RE = /^```(.+?)```/s;
-const CODE_BLOCK_ANYWHERE_RE = /```(.+?)```/s;
-const INLINE_CODE_RE = /^(``?)(.*?)\1/s;
-const BLOCKQUOTE_RE = /^(?: *>>> (.+)| *>(?!>>) ([^\n]+\n?))/s;
-const SUBTEXT_RE = /^-# (?!-#) *([^\n]+\n?)/;
-const HEADER_RE = /^ *(#{1,3}) (?!#) *([^\n]+\n?)/;
-const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
-
-// const URL_REGEX = /https?:\/\/[^\s<]+[^<.,:;"')\]\s]/;
-const URL_REGEX_FULL_MATCH = /^https?:\/\/[^\s<]+[^<.,:;"')\]\s]$/;
-const URL_DISCORD_WEIRDNESS_REGEX = /(?<!\[\s*\]\s*\(\s*)https?:\/\/[^\s<]+[^<.,:;"')\]\s](?!\s\))/;
-
 // TODO: <br/> handling for "  \n"?
 
 export type parse_result = { node: markdown_node; fragment_end: number };
@@ -119,6 +85,7 @@ export abstract class Rule {
     coalesce?(a: markdown_node, b: markdown_node): markdown_node | null;
 }
 
+const ESCAPE_RE = /^\\([^0-9A-Za-z\s])/;
 export class EscapeRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         const match = remaining.match(ESCAPE_RE);
@@ -137,6 +104,7 @@ export class EscapeRule extends Rule {
     }
 }
 
+const BOLD_RE = /^\*\*(.+?)\*\*(?!\*)/s;
 export class BoldRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(BOLD_RE);
@@ -153,6 +121,7 @@ export class BoldRule extends Rule {
     }
 }
 
+const UNDERLINE_RE = /^__(.+?)__(?!_)/s;
 export class UnderlineRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(UNDERLINE_RE);
@@ -169,6 +138,23 @@ export class UnderlineRule extends Rule {
     }
 }
 
+const ITALICS_RE = new RegExp(
+    // only match _s surrounding words.
+    "^\\b_" +
+        "((?:__|\\\\[\\s\\S]|[^\\\\_])+?)_" +
+        "\\b" +
+        "|" +
+        // Or match *s that are followed by a non-space:
+        "^\\*(?=\\S)(" +
+        // Match any of:
+        //  - `**`: so that bolds inside italics don't close the italics
+        //  - `\*`: so that escaped *'s aren't considered
+        //  - whitespace
+        //  - non-whitespace, non-* characters
+        "(?:\\\\\\*|\\*\\*|\\s+(?:[^*\\s]|\\\\\\*|\\*\\*)|[^\\s*])+?" +
+        // followed by a non-space, non-* then *
+        ")(?<!\\\\)\\*(?!\\*)",
+);
 export class ItalicsRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(ITALICS_RE);
@@ -185,6 +171,7 @@ export class ItalicsRule extends Rule {
     }
 }
 
+const STRIKETHROUGH_RE = /^~~(.+?)~~/s;
 export class StrikethroughRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(STRIKETHROUGH_RE);
@@ -201,6 +188,7 @@ export class StrikethroughRule extends Rule {
     }
 }
 
+const SPOILER_RE = /^\|\|(.+?)\|\|/s;
 export class SpoilerRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(SPOILER_RE);
@@ -217,6 +205,8 @@ export class SpoilerRule extends Rule {
     }
 }
 
+const CODE_BLOCK_RE = /^```(.+?)```/s;
+const CODE_BLOCK_ANYWHERE_RE = /```(.+?)```/s;
 export class CodeBlockRule extends Rule {
     override match(remaining: string): match_result | null {
         // original regex: /^```(?:([\w+\-.]+?)?(\s*\n))?([^\n].*?)\n*```/s
@@ -248,6 +238,7 @@ export class CodeBlockRule extends Rule {
     }
 }
 
+const INLINE_CODE_RE = /^(``?)(.*?)\1/s;
 export class InlineCodeRule extends Rule {
     override match(remaining: string): match_result | null {
         const match = remaining.match(INLINE_CODE_RE);
@@ -269,6 +260,7 @@ export class InlineCodeRule extends Rule {
     }
 }
 
+const BLOCKQUOTE_RE = /^(?: *>>> (.+)| *>(?!>>) ([^\n]+\n?))/s;
 export class BlockquoteRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         return state.at_start_of_line && !state.in_link && !state.in_quote ? remaining.match(BLOCKQUOTE_RE) : null;
@@ -289,6 +281,7 @@ export class BlockquoteRule extends Rule {
     }
 }
 
+const SUBTEXT_RE = /^-# (?!-#) *([^\n]+\n?)/;
 export class SubtextRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         return state.at_start_of_line && !state.in_link ? remaining.match(SUBTEXT_RE) : null;
@@ -307,6 +300,7 @@ export class SubtextRule extends Rule {
     }
 }
 
+const HEADER_RE = /^ *(#{1,3}) (?!#) *([^\n]+\n?)/;
 export class HeaderRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         return state.at_start_of_line && !state.in_link ? remaining.match(HEADER_RE) : null;
@@ -326,6 +320,9 @@ export class HeaderRule extends Rule {
     }
 }
 
+// const URL_REGEX = /https?:\/\/[^\s<]+[^<.,:;"')\]\s]/;
+const URL_REGEX_FULL_MATCH = /^https?:\/\/[^\s<]+[^<.,:;"')\]\s]$/;
+const URL_DISCORD_WEIRDNESS_REGEX = /(?<!\[\s*\]\s*\(\s*)https?:\/\/[^\s<]+[^<.,:;"')\]\s](?!\s\))/;
 export class LinkRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         // simple-markdown uses the following regex for matching the content of a masked link:
@@ -384,6 +381,7 @@ export class LinkRule extends Rule {
     }
 }
 
+const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
 export class ListRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         return state.at_start_of_line && !state.in_link ? remaining.match(LIST_RE) : null;
@@ -418,6 +416,7 @@ export function make_plain_node(match: string): plain_text {
     };
 }
 
+const TEXT_RE = /^.+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n|$)\n?/s;
 export class TextRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(TEXT_RE);
