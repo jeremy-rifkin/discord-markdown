@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { document_fragment, list, markdown_node } from "./markdown-nodes";
+import { document_fragment, list, markdown_node, plain_text } from "./markdown-nodes";
 import { unwrap } from "./utils";
 
 // References:
@@ -88,21 +88,26 @@ const ITALICS_RE = new RegExp(
         ")(?<!\\\\)\\*(?!\\*)",
 );
 const CODE_BLOCK_RE = /^```(.+?)```/s;
+const CODE_BLOCK_ANYWHERE_RE = /```(.+?)```/s;
 const INLINE_CODE_RE = /^(``?)(.*?)\1/s;
 const BLOCKQUOTE_RE = /^(?: *>>> (.+)| *>(?!>>) ([^\n]+\n?))/s;
 const SUBTEXT_RE = /^-# (?!-#) *([^\n]+\n?)/;
 const HEADER_RE = /^ *(#{1,3}) (?!#) *([^\n]+\n?)/;
-const LINK_RE = /^\[((?:\\.|[^\]\\])*)\]\((\s*https:\/\/.*?(?:\\[^[\]]|[^)[\]\\\n])*)\)/;
 const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
+
+// const URL_REGEX = /https?:\/\/[^\s<]+[^<.,:;"')\]\s]/;
+const URL_REGEX_FULL_MATCH = /^https?:\/\/[^\s<]+[^<.,:;"')\]\s]$/;
+const URL_DISCORD_WEIRDNESS_REGEX = /(?<!\[\s*\]\s*\(\s*)https?:\/\/[^\s<]+[^<.,:;"')\]\s](?!\s\))/;
 
 // TODO: <br/> handling for "  \n"?
 
 export type parse_result = { node: markdown_node; fragment_end: number };
-export type match_result = RegExpMatchArray;
+export type match_result = string[];
 
 export type parser_state = {
     at_start_of_line: boolean;
     in_quote: boolean;
+    in_link: boolean;
 };
 
 export abstract class Rule {
@@ -115,8 +120,9 @@ export abstract class Rule {
 }
 
 export class EscapeRule extends Rule {
-    override match(remaining: string): match_result | null {
-        return remaining.match(ESCAPE_RE);
+    override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
+        const match = remaining.match(ESCAPE_RE);
+        return (match && match[1] !== "]") || !state.in_link ? match : null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
@@ -265,7 +271,7 @@ export class InlineCodeRule extends Rule {
 
 export class BlockquoteRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
-        return state.at_start_of_line && !state.in_quote ? remaining.match(BLOCKQUOTE_RE) : null;
+        return state.at_start_of_line && !state.in_link && !state.in_quote ? remaining.match(BLOCKQUOTE_RE) : null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
@@ -285,7 +291,7 @@ export class BlockquoteRule extends Rule {
 
 export class SubtextRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
-        return state.at_start_of_line ? remaining.match(SUBTEXT_RE) : null;
+        return state.at_start_of_line && !state.in_link ? remaining.match(SUBTEXT_RE) : null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
@@ -303,7 +309,7 @@ export class SubtextRule extends Rule {
 
 export class HeaderRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
-        return state.at_start_of_line ? remaining.match(HEADER_RE) : null;
+        return state.at_start_of_line && !state.in_link ? remaining.match(HEADER_RE) : null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
@@ -321,12 +327,51 @@ export class HeaderRule extends Rule {
 }
 
 export class LinkRule extends Rule {
-    override match(remaining: string, parser: MarkdownParser): match_result | null {
-        return remaining.match(LINK_RE);
+    override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
+        // simple-markdown uses the following regex for matching the content of a masked link:
+        // /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/s
+        // https://github.com/Khan/perseus/blob/main/packages/simple-markdown/src/index.ts
+        // This is attempting to handle some balanced braces but it ends up being theoretically vulnerable to ReDoS due
+        // to catastrophic backtracking
+        // To simplify things and avoid such concerns, it just makes sense to match the [] part with a loop
+        let i = 0;
+        if (remaining[i] !== "[" || state.in_link) {
+            return null;
+        }
+        let depth = 1;
+        while (i++ < remaining.length) {
+            if (remaining[i] === "[") {
+                depth++;
+            } else if (remaining[i] === "]") {
+                if (depth > 0) {
+                    depth--;
+                }
+                if (depth === 0) {
+                    // try to match the ending
+                    const href_re = /^\(\s*<?((?:\([^)]*\)|[^\s\\]|\\.)*?)>?\s*\)/s;
+                    const href_match = remaining.substring(i + 1).match(href_re);
+                    if (href_match && href_match[1].match(URL_REGEX_FULL_MATCH)) {
+                        return [
+                            remaining.substring(0, i + href_match[0].length + 1),
+                            remaining.substring(1, i),
+                            href_match[1],
+                        ];
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
-        return {
+        if (match[1].match(URL_DISCORD_WEIRDNESS_REGEX) || match[1].match(CODE_BLOCK_ANYWHERE_RE)) {
+            return {
+                node: make_plain_node(match[0]),
+                fragment_end: match[0].length,
+            };
+        }
+        state.in_link = true;
+        const node: parse_result = {
             node: {
                 type: "masked_link",
                 target: match[2],
@@ -334,12 +379,14 @@ export class LinkRule extends Rule {
             },
             fragment_end: match[0].length,
         };
+        state.in_link = false;
+        return node;
     }
 }
 
 export class ListRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
-        return state.at_start_of_line ? remaining.match(LIST_RE) : null;
+        return state.at_start_of_line && !state.in_link ? remaining.match(LIST_RE) : null;
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state, remaining: string): parse_result {
@@ -361,6 +408,16 @@ export class ListRule extends Rule {
     }
 }
 
+export function make_plain_node(match: string): plain_text {
+    return {
+        type: "plain",
+        content: match
+            .split(/(?<=\n)/)
+            .map(line => (line.endsWith("\n") ? line.trimEnd() + "\n" : line))
+            .join(""),
+    };
+}
+
 export class TextRule extends Rule {
     override match(remaining: string): match_result | null {
         return remaining.match(TEXT_RE);
@@ -369,13 +426,7 @@ export class TextRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         parser.update_state(match[0], state);
         return {
-            node: {
-                type: "plain",
-                content: match[0]
-                    .split(/(?<=\n)/)
-                    .map(line => (line.endsWith("\n") ? line.trimEnd() + "\n" : line))
-                    .join(""),
-            },
+            node: make_plain_node(match[0]),
             fragment_end: match[0].length,
         };
     }
@@ -415,6 +466,7 @@ export class MarkdownParser {
         const state: parser_state = {
             at_start_of_line: true,
             in_quote: false,
+            in_link: false,
         };
         return this.parse_internal(input.trim(), state);
     }
