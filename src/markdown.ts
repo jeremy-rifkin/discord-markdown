@@ -336,7 +336,7 @@ export class LinkRule extends Rule {
         if (remaining[i] !== "[" || state.in_link) {
             return null;
         }
-        let depth = 1;
+        let depth = 1; // depth isn't strictly correct but...
         while (i++ < remaining.length) {
             if (remaining[i] === "[") {
                 depth++;
@@ -346,17 +346,67 @@ export class LinkRule extends Rule {
                 }
                 if (depth === 0) {
                     // try to match the ending
-                    const href_re = /^\(\s*<?((?:\([^)]*\)|[^\s\\]|\\.)*?)>?\s*\)/s;
-                    const href_match = remaining.substring(i + 1).match(href_re);
+                    const href_match = this.try_match_href(remaining.substring(i + 1));
                     if (href_match && href_match[1].match(URL_REGEX_FULL_MATCH)) {
                         return [
-                            remaining.substring(0, i + href_match[0].length + 1),
+                            remaining.substring(0, i + 1 + href_match[0].length),
                             remaining.substring(1, i),
                             href_match[1],
                         ];
                     }
                 }
             }
+        }
+        return null;
+    }
+
+    // returns something resembling a match array
+    try_match_href(remaining: string): string[] | null {
+        // simple-markdown uses what boils down to the following regex:
+        // /^\(\s*<?((?:\([^)]*\)|[^\s\\]|\\.)*?)>?\s*\)/s
+        // This is attempting to handle some balanced braces but it ends up being theoretically vulnerable to ReDoS due
+        // to catastrophic backtracking
+        // To simplify things and avoid such concerns, it just makes sense to match the () part with a loop
+        let i = 0;
+        if (remaining[i++] !== "(") {
+            return null;
+        }
+        while (/\s/.test(remaining[i])) {
+            i++;
+        }
+        if (remaining[i] === "<") {
+            i++;
+        }
+        // for the body match
+        // - (...) parentheses
+        // - non-whitespace characters
+        // - any \ + char
+        // until >?\s*\)
+        const url_start = i;
+        let depth = 0; // depth isn't strictly correct but...
+        while (i < remaining.length) {
+            const end_re = /^>?\s*\)/s;
+            if (remaining[i] === "(") {
+                depth++;
+            }
+            if (remaining[i] === ")" && depth > 0) {
+                depth--;
+            }
+            // try to match the ending
+            if (depth === 0 && (remaining[i] === ")" || remaining[i] === ">" || /\s/.test(remaining[i]))) {
+                const end_match = remaining.substring(i).match(end_re);
+                if (end_match) {
+                    return [remaining.substring(0, i + end_match[0].length), remaining.substring(url_start, i)];
+                }
+            }
+            // otherwise, check whitespace / escapes and move on
+            if (/\s/.test(remaining[i])) {
+                return null;
+            }
+            if (remaining[i] === "\\") {
+                i++;
+            }
+            i++;
         }
         return null;
     }

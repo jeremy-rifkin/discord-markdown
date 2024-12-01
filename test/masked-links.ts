@@ -137,6 +137,42 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
+        expect.soft(parser.parse("[foo](<https://google.com)")).to.deep.equal({
+            content: [
+                {
+                    content: {
+                        content: [
+                            {
+                                content: "foo",
+                                type: "plain",
+                            },
+                        ],
+                        type: "doc",
+                    },
+                    target: "https://google.com",
+                    type: "masked_link",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("[foo](https://google.com>)")).to.deep.equal({
+            content: [
+                {
+                    content: {
+                        content: [
+                            {
+                                content: "foo",
+                                type: "plain",
+                            },
+                        ],
+                        type: "doc",
+                    },
+                    target: "https://google.com",
+                    type: "masked_link",
+                },
+            ],
+            type: "doc",
+        });
         expect.soft(parser.parse("[[foo]](https://google.com)")).to.deep.equal({
             content: [
                 {
@@ -159,6 +195,24 @@ describe("Markdown tests", () => {
             content: [
                 {
                     content: "foo [ foo ](bar)",
+                    type: "plain",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("[foo]()")).to.deep.equal({
+            content: [
+                {
+                    content: "[foo]()",
+                    type: "plain",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("[foo](https://google . com)")).to.deep.equal({
+            content: [
+                {
+                    content: "[foo](https://google . com)",
                     type: "plain",
                 },
             ],
