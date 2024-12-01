@@ -217,13 +217,14 @@ export class CodeBlockRule extends Rule {
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state): parse_result {
         const content = trim_trailing_newlines(match[1]);
-        const language_re = /^([\w+\-.]+?)(?:\s*\n)(.*)$/s;
-        const language_match = content.match(language_re);
+        const lines = content.split("\n");
         let language: string | null = null;
         let code;
+        const language_re = /^([\w+\-.]+?)\s*$/s;
+        const language_match = lines.length > 1 ? lines[0].match(language_re) : null;
         if (language_match) {
             language = language_match[1];
-            code = language_match[2];
+            code = lines.slice(1).join("\n");
         } else {
             code = content;
         }
