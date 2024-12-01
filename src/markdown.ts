@@ -68,7 +68,7 @@ const UNDERLINE_RE = /^__(.+?)__(?!_)/s;
 const STRIKETHROUGH_RE = /^~~(.+?)~~/s; // new RegExp("^~~(?=\\S)([\\s\\S]*?\\S)~~");
 const SPOILER_RE = /^\|\|(.+?)\|\|/s;
 // const NEWLINE_RE = new RegExp("^(?:\\n *)*\\n");
-const TEXT_RE = /^.+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n| {2,}\n|\w+:\S|$)\n?/s;
+const TEXT_RE = /^.+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|\n|$)\n?/s;
 const ESCAPE_RE = /^\\([^0-9A-Za-z\s])/;
 const ITALICS_RE = new RegExp(
     // only match _s surrounding words.
