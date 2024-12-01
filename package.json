@@ -14,8 +14,8 @@
         "prepare": "husky",
         "ts-check": "tsc --noEmit",
         "format": "prettier src test *.md --write",
-        "format-check": "prettier src test --check",
-        "format-files": "prettier src test --write --ignore-unknown",
+        "format-check": "prettier src test *.md --check",
+        "format-files": "prettier src test *.md --write --ignore-unknown",
         "lint": "eslint src",
         "lint-files": "eslint --color"
     },
