@@ -12,3 +12,11 @@ export function trim_trailing_newlines(str: string) {
     }
     return str.slice(0, str.length - end_of_trailing_newlines_index);
 }
+
+export function trim_leading_spaces(str: string, max: number) {
+    const first_non_space = str.search(/[^ ]/);
+    if (first_non_space === -1) {
+        return "";
+    }
+    return str.slice(Math.min(max, first_non_space));
+}

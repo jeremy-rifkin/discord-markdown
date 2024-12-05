@@ -1,6 +1,6 @@
 import { strict as assert } from "assert";
 import { document_fragment, list, markdown_node, plain_text } from "./markdown-nodes";
-import { trim_trailing_newlines, unwrap } from "./utils";
+import { trim_leading_spaces, trim_trailing_newlines, unwrap } from "./utils";
 
 // References:
 // https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline
@@ -432,22 +432,31 @@ export class LinkRule extends Rule {
     }
 }
 
-const LIST_RE = /^( *)([+*-]|(\d+)\.) +([^\n]+(?:\n\1 {2}[^\n]+)*\n?)/;
+const LIST_RE = /^( *)([+*-]|(\d+)\.)( +)([^\n]+(?:\n\1 [^\n]+)*\n?)/;
 export class ListRule extends Rule {
     override match(remaining: string, parser: MarkdownParser, state: parser_state): match_result | null {
         return state.at_start_of_line && !state.in_link ? remaining.match(LIST_RE) : null;
+    }
+
+    undent_list_body(body: string, leading_width: number) {
+        return body
+            .split("\n")
+            .map(line => trim_leading_spaces(line, 2 + leading_width - 1))
+            .join("\n");
     }
 
     override parse(match: match_result, parser: MarkdownParser, state: parser_state, remaining: string): parse_result {
         const list_node: list = {
             type: "list",
             start_number: (match[3] as string | null) ? parseInt(match[3]) : null,
-            items: [parser.parse_internal(match[4], state)],
+            items: [parser.parse_internal(this.undent_list_body(match[5], match[4].length), state)],
         };
         let fragment_end = match[0].length;
         let next_match;
         while ((next_match = this.match(remaining.substring(fragment_end), parser, state))) {
-            list_node.items.push(parser.parse_internal(next_match[4], state));
+            list_node.items.push(
+                parser.parse_internal(this.undent_list_body(next_match[5], next_match[4].length), state),
+            );
             fragment_end += next_match[0].length;
         }
         return {

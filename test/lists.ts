@@ -291,5 +291,85 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
+        expect.soft(parser.parse("- foo\n bar")).to.deep.equal({
+            content: [
+                {
+                    items: [
+                        {
+                            content: [
+                                {
+                                    content: "foo\nbar",
+                                    type: "plain",
+                                },
+                            ],
+                            type: "doc",
+                        },
+                    ],
+                    start_number: null,
+                    type: "list",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("-   foo")).to.deep.equal({
+            content: [
+                {
+                    items: [
+                        {
+                            content: [
+                                {
+                                    content: "foo",
+                                    type: "plain",
+                                },
+                            ],
+                            type: "doc",
+                        },
+                    ],
+                    start_number: null,
+                    type: "list",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("- foo\n  bar1\n   bar2\n    bar3\n     bar4")).to.deep.equal({
+            content: [
+                {
+                    items: [
+                        {
+                            content: [
+                                {
+                                    content: "foo\nbar1\n bar2\n  bar3\n   bar4",
+                                    type: "plain",
+                                },
+                            ],
+                            type: "doc",
+                        },
+                    ],
+                    start_number: null,
+                    type: "list",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("-   foo\n  bar1\n   bar2\n    bar3\n     bar4")).to.deep.equal({
+            content: [
+                {
+                    items: [
+                        {
+                            content: [
+                                {
+                                    content: "foo\nbar1\nbar2\nbar3\n bar4",
+                                    type: "plain",
+                                },
+                            ],
+                            type: "doc",
+                        },
+                    ],
+                    start_number: null,
+                    type: "list",
+                },
+            ],
+            type: "doc",
+        });
     });
 });
