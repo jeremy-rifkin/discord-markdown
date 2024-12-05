@@ -1,6 +1,6 @@
 import { strict as assert } from "assert";
 import { document_fragment, list, markdown_node, plain_text } from "./markdown-nodes";
-import { trim_leading_spaces, trim_trailing_newlines, unwrap } from "./utils";
+import { evaluate_escapes, trim_leading_spaces, trim_trailing_newlines, unwrap } from "./utils";
 
 // References:
 // https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline
@@ -422,7 +422,7 @@ export class LinkRule extends Rule {
         const node: parse_result = {
             node: {
                 type: "masked_link",
-                target: match[2],
+                target: evaluate_escapes(match[2]),
                 content: parser.parse_internal(match[1], state),
             },
             fragment_end: match[0].length,

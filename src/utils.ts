@@ -20,3 +20,7 @@ export function trim_leading_spaces(str: string, max: number) {
     }
     return str.slice(Math.min(max, first_non_space));
 }
+
+export function evaluate_escapes(str: string) {
+    return str.replace(/\\([^0-9A-Za-z\s])/g, "$1");
+}

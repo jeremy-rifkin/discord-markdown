@@ -386,7 +386,7 @@ describe("Markdown tests", () => {
                         ],
                         type: "doc",
                     },
-                    target: "https://google.com/\\)bar", // TODO FIXME: This escape is actually evaluated
+                    target: "https://google.com/)bar",
                     type: "masked_link",
                 },
                 {
