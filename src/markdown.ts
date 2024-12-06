@@ -448,7 +448,7 @@ export class ListRule extends Rule {
     override parse(match: match_result, parser: MarkdownParser, state: parser_state, remaining: string): parse_result {
         const list_node: list = {
             type: "list",
-            start_number: (match[3] as string | null) ? parseInt(match[3]) : null,
+            start_number: (match[3] as string | null) ? Math.max(parseInt(match[3]), 1) : null,
             items: [parser.parse_internal(this.undent_list_body(match[5], match[4].length), state)],
         };
         let fragment_end = match[0].length;

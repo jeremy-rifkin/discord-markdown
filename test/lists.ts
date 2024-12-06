@@ -371,5 +371,34 @@ describe("Markdown tests", () => {
             ],
             type: "doc",
         });
+        expect.soft(parser.parse("0. foo")).to.deep.equal({
+            content: [
+                {
+                    items: [
+                        {
+                            content: [
+                                {
+                                    content: "foo",
+                                    type: "plain",
+                                },
+                            ],
+                            type: "doc",
+                        },
+                    ],
+                    start_number: 1,
+                    type: "list",
+                },
+            ],
+            type: "doc",
+        });
+        expect.soft(parser.parse("-1. foo")).to.deep.equal({
+            content: [
+                {
+                    content: "-1. foo",
+                    type: "plain",
+                },
+            ],
+            type: "doc",
+        });
     });
 });
